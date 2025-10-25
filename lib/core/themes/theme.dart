@@ -1,16 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const _bg = Color(0xFFF5F7FB);
-const _surface = Color(0xFFE8EEF8);
-const _accent1 = Color(0xFFFF5C7C);
-const _accent2 = Color(0xFF00BCD4);
-const _stroke = Color(0xFFBFC9D9);
-const _text = Color(0xFF0F1724);
+// Updated color palette (provided by user)
+const _bg = Color(0xFF5EC2A5);
+const _surface = Color(0xFF43A99F);
+const _accent1 = Color(0xFF43A99F);
+const _accent2 = Color(0xFF2F7785);
+const _stroke = Color(0xFF305F70);
+const _text = Color(0xFF2F4858);
 
-final neubrutalTheme = ThemeData(
+/// Material-based app theme using the provided palette.
+/// Exposes `appTheme` (ThemeData) and `appDecoration` for cards/containers.
+final ThemeData appTheme = ThemeData(
+  useMaterial3: true,
+  colorScheme: ColorScheme.light(
+    primary: _accent2,
+    onPrimary: Colors.white,
+    secondary: _accent1,
+    onSecondary: Colors.white,
+    onBackground: _text,
+    onSurface: _text,
+  ),
   scaffoldBackgroundColor: _bg,
-  primaryColor: _accent2,
+  appBarTheme: AppBarTheme(
+    elevation: 0,
+    centerTitle: true,
+    titleTextStyle: GoogleFonts.poppins(
+      color: _text,
+      fontSize: 18,
+      fontWeight: FontWeight.w700,
+    ),
+    iconTheme: const IconThemeData(color: _text),
+  ),
   textTheme: TextTheme(
     headlineLarge: GoogleFonts.poppins(
       fontSize: 28,
@@ -24,46 +45,33 @@ final neubrutalTheme = ThemeData(
     ),
     bodyMedium: GoogleFonts.inter(fontSize: 14, color: _text),
   ),
-  appBarTheme: const AppBarTheme(
-    backgroundColor: _bg,
-    elevation: 0,
-    centerTitle: true,
-    titleTextStyle: TextStyle(
-      color: _text,
-      fontSize: 18,
-      fontWeight: FontWeight.w700,
-    ),
-    iconTheme: IconThemeData(color: _text),
-  ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: _surface,
-      foregroundColor: _text,
-      elevation: 6,
+      backgroundColor: _accent2,
+      foregroundColor: Colors.white,
+      elevation: 4,
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(width: 2, color: _stroke),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   ),
-  // cardTheme: const CardTheme(
-  //   color: _surface,
-  //   elevation: 6,
-  //   margin: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-  //   shape: RoundedRectangleBorder(
-  //     borderRadius: BorderRadius.all(Radius.circular(12)),
-  //     side: BorderSide(color: _stroke, width: 3),
-  //   ),
-  // ),
+
+  inputDecorationTheme: InputDecorationTheme(
+    filled: true,
+    fillColor: _surface,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: _stroke),
+    ),
+  ),
+  iconTheme: const IconThemeData(color: _text),
 );
 
-BoxDecoration neubrutalDecoration({double radius = 12}) => BoxDecoration(
+BoxDecoration appDecoration({double radius = 12}) => BoxDecoration(
   color: _surface,
   borderRadius: BorderRadius.circular(radius),
-  border: Border.all(color: _stroke, width: 3),
+  border: Border.all(color: _stroke, width: 1.5),
   boxShadow: const [
-    BoxShadow(offset: Offset(6, 6), blurRadius: 8, color: Color(0x22000000)),
-    BoxShadow(offset: Offset(-4, -4), blurRadius: 6, color: Color(0x20FFFFFF)),
+    BoxShadow(offset: Offset(4, 4), blurRadius: 8, color: Color(0x22000000)),
+    BoxShadow(offset: Offset(-2, -2), blurRadius: 6, color: Color(0x20FFFFFF)),
   ],
 );

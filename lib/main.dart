@@ -1,38 +1,24 @@
 import 'package:bus_ellide_mobile/core/themes/theme.dart';
-import 'package:bus_ellide_mobile/features/home/home.dart';
-import 'package:bus_ellide_mobile/features/route_details/live_tracking_page.dart';
-import 'package:bus_ellide_mobile/features/route_details/route_details_page.dart';
+import 'package:bus_ellide_mobile/injection_container.dart';
+import 'package:bus_ellide_mobile/presentation/navigation/bottom_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-void main() {
-  runApp(const ProviderScope(child: BMTCApp()));
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // needed for async in main
+  await initDI(); // initialize dependencies
+  runApp(ProviderScope(child: BmtcApp()));
 }
 
-class BMTCApp extends StatelessWidget {
-  const BMTCApp({super.key});
+class BmtcApp extends StatelessWidget {
+  const BmtcApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final _router = GoRouter(
-      routes: [
-        GoRoute(path: '/', builder: (c, s) => const HomePage()),
-        GoRoute(
-          path: '/route/:id',
-          builder: (c, s) => RouteDetailsPage(routeId: '1000' ?? 'unknown'),
-        ),
-        GoRoute(
-          path: '/live/:id',
-          builder: (c, s) => LiveTrackingPage(routeId: '300' ?? 'unknown'),
-        ),
-      ],
-    );
-
-    return MaterialApp.router(
-      title: 'BMTC — Starter',
-      theme: neubrutalTheme,
-      routerConfig: _router,
+    return MaterialApp(
+      title: 'BMTC Live Tracker',
+      theme: appTheme,
+      home: const BottomNavBar(),
       debugShowCheckedModeBanner: false,
     );
   }
