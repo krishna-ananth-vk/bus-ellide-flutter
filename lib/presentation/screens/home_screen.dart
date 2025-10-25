@@ -1,9 +1,12 @@
+import 'package:bus_ellide_mobile/presentation/blocs/profile_bloc/profile_bloc.dart';
 import 'package:bus_ellide_mobile/presentation/blocs/route_bloc/route_bloc.dart';
+import 'package:bus_ellide_mobile/presentation/widgets/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
 final routeBlocProvider = ChangeNotifierProvider((ref) => RouteBloc());
+final profileBlocProvider = ChangeNotifierProvider((ref) => ProfileBloc());
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -11,7 +14,9 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final routeBloc = ref.watch(routeBlocProvider);
+    final profileBloc = ref.watch(profileBlocProvider);
     final routes = routeBloc.routes;
+    final favorites = profileBloc.favorites;
 
     return Scaffold(
       body: SafeArea(
@@ -19,64 +24,56 @@ class HomeScreen extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(12.0),
-              
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search routes...',
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 0,
-                    horizontal: 16,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                onChanged: (value) {
-                  routeBloc.searchRoutes(value);
+              child: SearchDropDown(
+                onSearch: routeBloc.searchRoutes,
+                isLoading: routeBloc.isLoading,
+                results: routes,
+                displayLabel: (route) => route.routeno ?? '',
+                onItemClick: (route) {
+                  routeBloc.selectItem(route.routeno);
                 },
+                selectedItem: (route) => favorites.contains(route.routeno),
               ),
             ),
-            if (routeBloc.isLoading) const LinearProgressIndicator(),
-            // Dropdown suggestions
-            if (routes.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 12),
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+            SizedBox(
+              width: double.maxFinite,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 4.0),
+                child: Text(
+                  'Favourite Routes',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                constraints: const BoxConstraints(maxHeight: 300),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: routes.length,
+              ),
+            ),
+
+            if (favorites.isNotEmpty)
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(8),
+                  itemCount: favorites.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 0),
                   itemBuilder: (context, index) {
-                    final route = routes[index];
-                    return ListTile(
-                      title: Text(route.routeno ?? ''),
-                      subtitle: Text('Route ID: ${route.routeno}'),
-                      onTap: () {
-                        // Fill the TextField or navigate
-                        // routeBloc.selectRoute(route);
-                      },
+                    final routeNo = favorites[index];
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 1,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                        ),
+                        title: Text(routeNo),
+                        trailing: Icon(Icons.star, color: Colors.amber),
+                        onTap: () {
+                          // optional: navigate to route details or perform action
+                        },
+                      ),
                     );
                   },
                 ),
               ),
-            if (routes.isEmpty && !routeBloc.isLoading)
-              const Expanded(child: Center(child: Text('No results'))),
           ],
         ),
       ),
