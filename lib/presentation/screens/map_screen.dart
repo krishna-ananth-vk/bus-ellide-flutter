@@ -1,37 +1,26 @@
+import 'package:bus_ellide_mobile/presentation/blocs/map_bloc/map_bloc.dart';
+import 'package:bus_ellide_mobile/presentation/blocs/profile_bloc/profile_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:latlong2/latlong.dart';
 
-class MapScreen extends StatefulWidget {
+final profileBlocProvider = ChangeNotifierProvider((ref) => ProfileBloc());
+final mapBlocProvider = ChangeNotifierProvider((ref) => MapBloc());
+
+class MapScreen extends ConsumerWidget {
   const MapScreen({super.key});
-
   @override
-  State<MapScreen> createState() => _MapScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileBloc = ref.watch(profileBlocProvider);
+    final mapBloc = ref.watch(mapBlocProvider);
+    final selectedRoutes = mapBloc.selected;
+    final selectedRoutePoints = mapBloc.selectedRoutePoints;
+    final entries = profileBloc.entries;
 
-class _MapScreenState extends State<MapScreen> {
-  final List<Map<String, String>> favoriteRoutes = [
-    {'id': '201R', 'name': '201R'},
-    {'id': '500C', 'name': '500C'},
-    {'id': 'KBS1', 'name': 'KBS1'},
-    {'id': 'V500D', 'name': 'V500D'},
-    {'id': 'V365', 'name': 'V365'},
-  ];
+    debugPrint("MapScreen is rebuilding entries_updated $entries");
 
-  final Set<String> selectedRoutes = {};
-
-  void toggleRoute(String id) {
-    setState(() {
-      if (selectedRoutes.contains(id)) {
-        selectedRoutes.remove(id);
-      } else {
-        selectedRoutes.add(id);
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
@@ -43,39 +32,70 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.example.bmtcapp',
+                userAgentPackageName: 'news.nammablr.bus_elli',
               ),
+              if (selectedRoutePoints.isNotEmpty)
+                PolylineLayer(
+                  polylines: selectedRoutePoints.entries.map((entry) {
+                    final points = entry.value
+                        .map(
+                          (point) => LatLng(
+                            double.tryParse(point.latitude ?? '') ?? 0,
+                            double.tryParse(point.longitude ?? '') ?? 0,
+                          ),
+                        )
+                        .toList();
+                    return Polyline(
+                      points: points,
+                      color: Colors.blue, // optionally vary color per route
+                      strokeWidth: 4,
+                    );
+                  }).toList(),
+                ),
             ],
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0, // just above bottom navigation
-            child: Container(
-              color: Colors.white.withOpacity(0.9),
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: SizedBox(
-                height: 50,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  itemCount: favoriteRoutes.length,
-                  itemBuilder: (context, index) {
-                    final route = favoriteRoutes[index];
-                    final selected = selectedRoutes.contains(route['id']);
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: ChoiceChip(
-                        label: Text(route['name']!),
-                        selected: selected,
-                        onSelected: (_) => toggleRoute(route['id']!),
-                      ),
-                    );
-                  },
+          if (entries.isNotEmpty)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0, // just above bottom navigation
+              child: Container(
+                color: Colors.white.withOpacity(0.9),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: SizedBox(
+                  height: 50,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: entries.length,
+                    itemBuilder: (context, index) {
+                      final route = entries[index];
+                      final selected = selectedRoutes.contains(route.key);
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: ChoiceChip(
+                          label: Text(route.value),
+                          selected: selected,
+                          onSelected: (_) => mapBloc.toggleSelected(route.key),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
+
+          if (entries.isEmpty)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0, // just above bottom navigation
+              child: Container(
+                color: Colors.white.withOpacity(0.9),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text("No Favorites", textAlign: TextAlign.center),
+              ),
+            ),
         ],
       ),
     );

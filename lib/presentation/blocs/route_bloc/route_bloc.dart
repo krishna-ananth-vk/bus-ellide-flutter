@@ -11,14 +11,14 @@ class RouteBloc extends ChangeNotifier {
   List<RouteSearch> _routes = [];
   List<RouteSearch> get routes => _routes;
 
-  List<String> _selectedRoutes = [];
-  List<String> get selectedRoutes => _selectedRoutes;
+  Map<String, String> _selectedRoutes = <String, String>{};
+  Map<String, String> get selectedRoutes => _selectedRoutes;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   Future<void> init() async {
-    _selectedRoutes = _profileBloc.favorites;
+    // _selectedRoutes = _profileBloc.favorites;
   }
 
   Future<void> searchRoutes(String searchText) async {
@@ -42,17 +42,17 @@ class RouteBloc extends ChangeNotifier {
     }
   }
 
-  void selectItem(String? route) {
-    if (route != null && route.isNotEmpty) {
-      if (_selectedRoutes.contains(route)) {
-        _selectedRoutes.remove(route);
+  void selectItem(String routeNo, String routeId) {
+    debugPrint('Selected route: ${routeNo}');
+    if (routeNo != null && routeNo.isNotEmpty) {
+      if (_selectedRoutes.containsKey(routeId)) {
+        _selectedRoutes.remove(routeId);
       } else {
-        _selectedRoutes.add(route);
+        _selectedRoutes.addAll({routeId: routeNo});
       }
-      _profileBloc.toggleFavorite(route);
+      _profileBloc.toggleFavorite(routeNo, routeId);
     }
     _routes = []; // hide dropdown results after selection
     notifyListeners();
-    debugPrint('Selected route: ${route}');
   }
 }

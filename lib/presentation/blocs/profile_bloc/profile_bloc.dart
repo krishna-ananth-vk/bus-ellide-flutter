@@ -8,33 +8,37 @@ class ProfileBloc extends ChangeNotifier {
   static const _boxName = 'favorites';
   static const _key = 'routeNumbers';
 
-  late Box<List> _box;
-  List<String> _favorites = [];
+  late Box _box;
+  Map<String, String> _favorites = <String, String>{};
 
-  List<String> get favorites => _favorites;
+  Map<String, String> get favorites => _favorites;
+  List<MapEntry<String, String>> get entries => _favorites.entries.toList();
 
   Future<void> init() async {
     if (!Hive.isBoxOpen(_boxName)) {
-      await Hive.openBox<List>(_boxName);
+      await Hive.openBox<Map>(_boxName);
     }
-    _box = Hive.box<List>(_boxName);
+    _box = Hive.box<Map>(_boxName);
     final saved = _box.get(_key);
-    _favorites = saved?.cast<String>() ?? [];
+    _favorites = saved?.cast<String, String>() ?? <String, String>{};
+    debugPrint("toggle_fav $saved ");
 
     notifyListeners();
   }
 
-  Future<void> toggleFavorite(String routeNo) async {
-    if (_favorites.contains(routeNo)) {
-      _favorites.remove(routeNo);
+  Future<void> toggleFavorite(String routeNo, String routeId) async {
+    debugPrint("toggle_fav $routeNo : $routeId");
+    if (_favorites.containsKey(routeId)) {
+      _favorites.remove(routeId);
     } else {
-      _favorites.add(routeNo);
+      _favorites.addAll({routeId: routeNo});
     }
     notifyListeners();
+
     await _box.put(_key, _favorites);
   }
 
   bool isFavourite(String routeNo) {
-    return _favorites.contains(routeNo);
+    return _favorites.containsKey(routeNo);
   }
 }

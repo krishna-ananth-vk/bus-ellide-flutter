@@ -9,7 +9,7 @@ final routeBlocProvider = ChangeNotifierProvider((ref) => RouteBloc());
 final profileBlocProvider = ChangeNotifierProvider((ref) => ProfileBloc());
 
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,7 +17,7 @@ class HomeScreen extends ConsumerWidget {
     final profileBloc = ref.watch(profileBlocProvider);
     final routes = routeBloc.routes;
     final favorites = profileBloc.favorites;
-
+    final favoritesEntries = favorites.entries.toList();
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -30,9 +30,13 @@ class HomeScreen extends ConsumerWidget {
                 results: routes,
                 displayLabel: (route) => route.routeno ?? '',
                 onItemClick: (route) {
-                  routeBloc.selectItem(route.routeno);
+                  routeBloc.selectItem(
+                    route.routeno!,
+                    "${route.routeparentid}",
+                  );
                 },
-                selectedItem: (route) => favorites.contains(route.routeno),
+                selectedItem: (route) =>
+                    favorites.containsKey(route.routeparentid),
               ),
             ),
             SizedBox(
@@ -51,10 +55,10 @@ class HomeScreen extends ConsumerWidget {
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.all(8),
-                  itemCount: favorites.length,
+                  itemCount: favoritesEntries.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 0),
                   itemBuilder: (context, index) {
-                    final routeNo = favorites[index];
+                    final anEntry = favoritesEntries[index];
                     return Card(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -64,8 +68,16 @@ class HomeScreen extends ConsumerWidget {
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                         ),
-                        title: Text(routeNo),
-                        trailing: Icon(Icons.star, color: Colors.amber),
+                        title: Text(anEntry.value),
+                        trailing: IconButton(
+                          onPressed: () => {
+                            routeBloc.selectItem(
+                              anEntry.value!,
+                              "${anEntry.key}",
+                            ),
+                          },
+                          icon: Icon(Icons.delete, color: Colors.red),
+                        ),
                         onTap: () {
                           // optional: navigate to route details or perform action
                         },

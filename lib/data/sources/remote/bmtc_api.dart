@@ -14,11 +14,13 @@ class BmtcApi {
     return res.data['data'] ?? [];
   }
 
-  Future<Map<String, dynamic>> getRouteDetails(int routeId) async {
-    final res = await client.post(ApiEndpoints.routeDetails, {
-      'routeid': routeId,
-      'servicetypeid': 0,
-    });
+  Future<Map<String, dynamic>> getRouteDetails(String routeId) async {
+    final res = await client.get("${ApiEndpoints.routeDetails}/$routeId");
     return res.data;
+  }
+
+  Future<List> getRoutePoints(String routeId) async {
+    final res = await client.get("${ApiEndpoints.routePoints}/$routeId");
+    return res.data['data'] ?? [];
   }
 }

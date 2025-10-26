@@ -9,7 +9,7 @@ final di = GetIt.instance;
 
 Future<void> initDI() async {
   await Hive.initFlutter();
-  await Hive.openBox<List>('favorites');
+  await Hive.openBox<Map>('favorites');
 
   di.registerLazySingleton<ProfileBloc>(() => ProfileBloc());
 

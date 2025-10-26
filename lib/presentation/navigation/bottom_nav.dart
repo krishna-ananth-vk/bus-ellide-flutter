@@ -12,17 +12,29 @@ class BottomNavBar extends StatefulWidget {
 
 class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
+  Key _mapKey = UniqueKey();
 
-  final List<Widget> _pages = const [
+  late final List<Widget> _pages = [
     HomeScreen(),
-    MapScreen(),
+    MapScreen(key: _mapKey),
     ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == 1) {
+      // 3. If switching to the Map tab, generate a new UniqueKey().
+      // This tells Flutter the MapScreen widget is a *new* instance,
+      // forcing the framework to dispose the old one and rebuild the new one immediately.
+      setState(() {
+        _selectedIndex = index;
+        _mapKey = UniqueKey(); // Force the map screen to rebuild
+        _pages[1] = MapScreen(key: _mapKey); // Update the page list
+      });
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   @override

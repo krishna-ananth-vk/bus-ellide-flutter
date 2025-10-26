@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 // Updated color palette (provided by user)
-const _bg = Color(0xFF5EC2A5);
 const _surface = Color(0xFF43A99F);
 const _accent1 = Color(0xFF43A99F);
 const _accent2 = Color(0xFF2F7785);
@@ -21,7 +20,7 @@ final ThemeData appTheme = ThemeData(
     onBackground: _text,
     onSurface: _text,
   ),
-  scaffoldBackgroundColor: _bg,
+  // scaffoldBackgroundColor: _bg,
   appBarTheme: AppBarTheme(
     elevation: 0,
     centerTitle: true,
